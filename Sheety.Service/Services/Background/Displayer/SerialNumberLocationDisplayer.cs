@@ -25,8 +25,15 @@ public class SerialNumberLocationDisplayer : BackgroundService
 		{
 			var scanResult = await _store.Get();
 			var location = _locationFinder.GetLocation(scanResult.SerialNumber);
-			_logger.LogInformation("{ScanResultSerialNumber} - Page: {LocationPage} Index: {LocationIndex}",
-				scanResult.SerialNumber, location.Page, location.Index);
+			if (location == null)
+			{
+				_logger.LogInformation("There is no the serial number");
+			}
+			else
+			{
+				_logger.LogInformation("{ScanResultSerialNumber} - Outer Page: {LocationPage}. Inner Page: {LocationIndex}",
+					scanResult.SerialNumber, location.OuterPage, location.InnerPage);
+			}
 		}
 	}
 	

@@ -1,3 +1,3 @@
 namespace Sheety.Models;
 
-public record Location(int Page, int Index);
+public record Location(int  OuterPage, int InnerPage);
