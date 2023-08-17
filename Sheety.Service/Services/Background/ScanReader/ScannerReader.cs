@@ -1,5 +1,6 @@
 ﻿using System.IO.Ports;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Sheety.Services.Store;
 
 namespace Sheety.Services.Background.ScanReader;
@@ -7,26 +8,33 @@ namespace Sheety.Services.Background.ScanReader;
 public class ScannerReader : BackgroundService
 {
 	private readonly IScanResultDispatcher _dispatcher;
+	
+	private string SerialPortName { get; set; }
 
-	public ScannerReader(IScanResultDispatcher dispatcher)
+	public ScannerReader(IScanResultDispatcher dispatcher, IOptions<ScannerReaderOptions> options)
 	{
 		_dispatcher = dispatcher;
+		SerialPortName = options.Value.SerialPortName;
+
 	}
 
-	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+	protected override Task ExecuteAsync(CancellationToken stoppingToken)
 	{
-		var port = new SerialPort();
-		while (!stoppingToken.IsCancellationRequested)
+		Task.Run(async () =>
 		{
-			var line = port.ReadLine();
-			await _dispatcher.Add(GetResult(line));
-		}
+			var port = new SerialPort(SerialPortName);
+			port.Open();
+			while (!stoppingToken.IsCancellationRequested)
+			{
+				var line = port.ReadLine();
+				await _dispatcher.Add(GetResult(line)).ConfigureAwait(true);
+			}
+		}, stoppingToken);
+		return Task.CompletedTask;
 	}
 
 	private static ScanResult GetResult(string line)
 	{
-		//ToDo: Add your logic
-
-		return new ScanResult(line);
+		return new ScanResult(line.Trim());
 	}
 }

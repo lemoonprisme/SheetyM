@@ -10,7 +10,7 @@ internal class ScanDispatcher : IScanResultStore, IScanResultDispatcher
 	{
 		return await _channel.Reader.ReadAsync();
 	}
-
+	
 	public async Task Add(ScanResult result)
 	{
 		await _channel.Writer.WriteAsync(result);

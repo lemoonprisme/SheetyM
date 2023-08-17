@@ -4,5 +4,5 @@ namespace Sheety.Services.LocationFinder;
 
 public interface INumberLocationFinder
 {
-	Location GetLocation(string serialNumber);
+	Location? GetLocation(string serialNumber);
 }
